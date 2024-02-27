@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "rate-limiter"
+version = "0.1.0"
+description = ""
+authors = ["Sesmi Athiyarath <sesmi.athiyarath@siemens-healthineers.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+flask = "^3.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
