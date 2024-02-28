@@ -1,0 +1,20 @@
+
+Token bucket
+=================================================================================
+
+Token bucket should have capacity, refill rate
+
+Token bucket should be initialised with full capacity 
+
+Token bucket should be refilled with tokens after refill rate 
+
+Test bucket does not go over set capacity
+
+If bucket is full, refill should overflow
+
+Request should be processed if there is token available and reduce the count
+
+Request should be denied if there are no tokens 
+
+Test behavior under concurrent access
+
