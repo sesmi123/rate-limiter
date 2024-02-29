@@ -11,7 +11,7 @@ class TokenBucket():
 
     def __init__(self, capacity: int, refill_amount: int, refill_time_in_seconds: int) -> None:
         self._my_bucket = Bucket(capacity)
-        self._validate_token_bucket_parameters( refill_amount, refill_time_in_seconds)
+        self._validate_parameters( refill_amount, refill_time_in_seconds)
         self._my_bucket.fill([Token() for _ in range(capacity)])
         self.refill_amount = refill_amount
         self.refill_time_in_seconds = refill_time_in_seconds
@@ -19,7 +19,7 @@ class TokenBucket():
         self.refill_rate = self.refill_amount / self.refill_time_in_seconds
         self.lock = threading.Lock()
 
-    def _validate_token_bucket_parameters(self, refill_amount: int, refill_time_in_seconds: int) -> None:
+    def _validate_parameters(self, refill_amount: int, refill_time_in_seconds: int) -> None:
         if refill_amount <= 0 or \
             refill_time_in_seconds <= 0 or \
             not isinstance(refill_amount, int) or \

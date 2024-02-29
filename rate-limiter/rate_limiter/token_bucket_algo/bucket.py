@@ -4,11 +4,11 @@ from typing import Any
 class Bucket():
     
     def __init__(self, capacity) -> None:
-        self._validate_bucket_parameters(capacity)
+        self._validate_parameters(capacity)
         self.capacity = capacity
         self._my_bucket = list()
     
-    def _validate_bucket_parameters(self, capacity: int) -> None:
+    def _validate_parameters(self, capacity: int) -> None:
         
         if capacity <= 0 or not isinstance(capacity, int):
                 raise ValueError("capacity should be a natural number")
