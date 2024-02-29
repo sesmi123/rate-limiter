@@ -6,11 +6,9 @@ Token bucket should have capacity, refill rate
 
 Token bucket should be initialised with full capacity 
 
-Token bucket should be refilled with tokens after refill rate 
-
 Test bucket does not go over set capacity
 
-If bucket is full, refill should overflow
+Token bucket should be refilled with tokens after refill rate 
 
 Request should be processed if there is token available and reduce the count
 
