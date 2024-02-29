@@ -163,7 +163,7 @@ class TestTokenBucket(unittest.TestCase):
 
         self.assertEqual(refill_amount, result)
     
-    def test_consume_token_when_token_is_available(self):
+    def test_consume_token_returns_true_and_pop_a_token_when_token_is_available(self):
         sut = TokenBucket(10, 1, 4)
         sut._available_tokens = MagicMock(return_value=3)
         sut._pop_token = MagicMock()
@@ -173,7 +173,7 @@ class TestTokenBucket(unittest.TestCase):
         sut._available_tokens.assert_called_once()
         sut._pop_token.assert_called_once()
 
-    def test_consume_token_when_token_is_not_available(self):
+    def test_consume_token_returns_false_when_token_is_not_available(self):
         sut = TokenBucket(10, 1, 4)
         sut._available_tokens = MagicMock(return_value=0)
         sut._pop_token = MagicMock()
