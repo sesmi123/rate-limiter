@@ -1,6 +1,8 @@
 
 import time
+from unittest.mock import MagicMock
 from rate_limiter.token_bucket_algo.token_bucket import TokenBucket
+from rate_limiter.token_bucket_algo.bucket import Bucket
 import unittest
 
 
@@ -14,7 +16,7 @@ class TestTokenBucket(unittest.TestCase):
 
         self.assertIsNotNone(sut)
         self.assertIsInstance(sut, TokenBucket)
-        self.assertEqual(sut.capacity, capacity)
+        self.assertIsInstance(sut._my_bucket, Bucket)
         self.assertEqual(sut.refill_amount, refill_amount)
         self.assertEqual(sut.refill_time_in_seconds, refill_time_in_seconds)
 
@@ -24,7 +26,7 @@ class TestTokenBucket(unittest.TestCase):
         refill_time_in_seconds = 60
         sut = TokenBucket(capacity, refill_amount, refill_time_in_seconds)
 
-        self.assertEqual(sut.fill_level(), capacity)
+        self.assertEqual(sut._available_tokens(), capacity)
 
     def test_token_bucket_cannot_be_created_with_negative_capacity(self):
         capacity = -10
@@ -89,16 +91,6 @@ class TestTokenBucket(unittest.TestCase):
         with self.assertRaises(ValueError):
             TokenBucket(capacity, refill_amount, refill_time_in_seconds)
 
-    def test_token_bucket_cannot_be_overfilled(self):
-        capacity = 10
-        refill_amount = 1
-        refill_time_in_seconds = 4
-        sut = TokenBucket(capacity, refill_amount, refill_time_in_seconds)
-
-        sut.fill([i for i in range(100)])
-
-        self.assertEqual(capacity, sut.fill_level())
-
     def test_token_bucket_is_not_refilled_if_time_elapsed_from_last_refill_is_less_than_refill_time(self):
         capacity = 10
         refill_amount = 1
@@ -106,12 +98,12 @@ class TestTokenBucket(unittest.TestCase):
         sut = TokenBucket(capacity, refill_amount, refill_time_in_seconds)
         # empty the tokens in bucket
         for _ in range(capacity):
-            sut.pop_token()
+            sut._pop_token()
 
         # immediately try refill after creation of token bucket and verify no tokens got added
-        sut.refill_tokens()
+        sut._refill_tokens()
 
-        self.assertEqual(0, sut.fill_level())
+        self.assertEqual(0, sut._available_tokens())
 
     def test_token_bucket_is_refilled_with_refill_amount_if_time_elapsed_from_last_refill_is_equal_to_refill_time(self):
         capacity = 10
@@ -120,14 +112,14 @@ class TestTokenBucket(unittest.TestCase):
         sut = TokenBucket(capacity, refill_amount, refill_time_in_seconds)
         # empty the tokens in bucket
         for _ in range(capacity):
-            sut.pop_token()
+            sut._pop_token()
         # set last refill time to refill_time seconds ago
         current_time = int(time.time())
         sut.last_refill_time = current_time - refill_time_in_seconds
 
-        sut.refill_tokens()
+        sut._refill_tokens()
 
-        self.assertEqual(refill_amount, sut.fill_level())
+        self.assertEqual(refill_amount, sut._available_tokens())
 
     def test_token_bucket_is_refilled_with_twice_refill_amount_if_time_elapsed_from_last_refill_is_equal_to_two_times_refill_time(self):
         capacity = 10
@@ -135,13 +127,13 @@ class TestTokenBucket(unittest.TestCase):
         refill_time_in_seconds = 4
         sut = TokenBucket(capacity, refill_amount, refill_time_in_seconds)
         for _ in range(capacity):
-            sut.pop_token()
+            sut._pop_token()
         current_time = int(time.time())
         sut.last_refill_time = current_time - refill_time_in_seconds * 2
 
-        sut.refill_tokens()
+        sut._refill_tokens()
 
-        self.assertEqual(refill_amount * 2, sut.fill_level())
+        self.assertEqual(refill_amount * 2, sut._available_tokens())
 
     def test_token_bucket_is_not_overfilled_by_refill(self):
         capacity = 10
@@ -149,10 +141,44 @@ class TestTokenBucket(unittest.TestCase):
         refill_time_in_seconds = 4
         sut = TokenBucket(capacity, refill_amount, refill_time_in_seconds)
         for _ in range(capacity):
-            sut.pop_token()
+            sut._pop_token()
         current_time = int(time.time())
         sut.last_refill_time = current_time - 100
 
-        sut.refill_tokens()
+        sut._refill_tokens()
 
-        self.assertEqual(capacity, sut.fill_level())
+        self.assertEqual(capacity, sut._available_tokens())
+
+    def test_token_bucket_returns_available_number_of_tokens_at_given_instant(self):
+        capacity = 10
+        refill_amount = 1
+        refill_time_in_seconds = 4
+        sut = TokenBucket(capacity, refill_amount, refill_time_in_seconds)
+        for _ in range(capacity):
+            sut._pop_token()
+        current_time = int(time.time())
+        sut.last_refill_time = current_time - refill_time_in_seconds
+
+        result = sut._available_tokens()
+
+        self.assertEqual(refill_amount, result)
+    
+    def test_consume_token_when_token_is_available(self):
+        sut = TokenBucket(10, 1, 4)
+        sut._available_tokens = MagicMock(return_value=3)
+        sut._pop_token = MagicMock()
+
+        self.assertTrue(sut.consume_token())
+
+        sut._available_tokens.assert_called_once()
+        sut._pop_token.assert_called_once()
+
+    def test_consume_token_when_token_is_not_available(self):
+        sut = TokenBucket(10, 1, 4)
+        sut._available_tokens = MagicMock(return_value=0)
+        sut._pop_token = MagicMock()
+
+        self.assertFalse(sut.consume_token())
+
+        sut._available_tokens.assert_called_once()
+        sut._pop_token.assert_not_called()
