@@ -38,18 +38,16 @@ class TokenBucket():
         if self._my_bucket.is_empty():
             raise ValueError("Bucket is already empty")
         
-        with self.lock:
-            self._my_bucket.empty()
-            return True
+        self._my_bucket.empty()
+        return True
 
     def _available_tokens(self) -> int:
         self._refill_tokens()
         return self._my_bucket.fill_level()
     
     def consume_token(self) -> bool:
-        with self.lock:
-            if self._available_tokens() > 0:
-                self._pop_token()
-                return True
-            else:
-                return False
+        if self._available_tokens() > 0:
+            self._pop_token()
+            return True
+        else:
+            return False
