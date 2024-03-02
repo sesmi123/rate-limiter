@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import Mock, patch
 from rate_limiter.token_bucket_algo.token_bucket import TokenBucket
-from rate_limiter.token_bucket_algo.singleton import Singleton
 from rate_limiter.token_bucket_algo.token_bucket_factory import TokenBucketFactory
 
 class TestTokenBucketFactory(unittest.TestCase):
@@ -48,7 +47,7 @@ class TestTokenBucketFactory(unittest.TestCase):
     def test_save_token_bucket(self):
         ip = "127.0.0.1"
         token_bucket = TokenBucket(100, 10, 60)
-        
+
         with patch("pickle.dumps") as mock_dumps:
             mock_dumps.return_value = b"serialized_bucket"
             self.factory.save_token_bucket(ip, token_bucket)
