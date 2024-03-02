@@ -17,3 +17,7 @@ poetry install
 Token bucket rate limiting with capacity of 10 tokens with new tokens added at a rate of 1 token per second.
 
 ![token_bucket_performance_testing](./screenshots/token_bucket.PNG)
+
+Leaky bucket rate limiting with capacity of 10 tokens with new tokens added at a rate of 1 token per second.
+
+![leaky_bucket_performance_testing](./screenshots/leaky_bucket.PNG)
