@@ -1,5 +1,4 @@
 
-import threading
 import time
 from .bucket import Bucket
 
@@ -17,7 +16,6 @@ class TokenBucket():
         self.refill_time_in_seconds = refill_time_in_seconds
         self.last_refill_time = int(time.time())
         self.refill_rate = self.refill_amount / self.refill_time_in_seconds
-        self.lock = threading.Lock()
 
     def _validate_parameters(self, refill_amount: int, refill_time_in_seconds: int) -> None:
         if refill_amount <= 0 or \
@@ -32,7 +30,7 @@ class TokenBucket():
         if time_elapsed_in_seconds >= self.refill_time_in_seconds:
             number_of_tokens_to_add = (time_elapsed_in_seconds//self.refill_time_in_seconds) * self.refill_amount
             self._my_bucket.fill([Token() for _ in range(number_of_tokens_to_add)])
-            self.last_refill_time = current_time
+            self.last_refill_time = current_time - (time_elapsed_in_seconds % self.refill_time_in_seconds)
     
     def _pop_token(self) -> bool:
         if self._my_bucket.is_empty():
