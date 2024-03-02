@@ -16,6 +16,7 @@ class TokenBucketRateLimiter:
             token_bucket = self.token_bucket_factory(ip)
             with self.token_bucket_lock:
                 if token_bucket.consume_token():
+                    self.token_bucket_factory.save_token_bucket(ip, token_bucket)
                     return func(*args, **kwargs)
                 else:
                     return jsonify({"error": "Rate limit exceeded"}), 429 

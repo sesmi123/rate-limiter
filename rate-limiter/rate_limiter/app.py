@@ -1,10 +1,13 @@
 from flask import Flask
+from redis_connection import RedisConnection
 from decorators import TokenBucketRateLimiter
 from token_bucket_algo.token_bucket_factory import TokenBucketFactory
 import settings
 
 app = Flask(__name__)
-token_bucket_factory = TokenBucketFactory(settings.token_bucket)
+db_connection = RedisConnection(**settings.redis)
+db_connection.connect()
+token_bucket_factory = TokenBucketFactory(db_connection, settings.token_bucket)
 token_bucket_rate_limiter = TokenBucketRateLimiter(token_bucket_factory)
 
 @app.route('/hello')
