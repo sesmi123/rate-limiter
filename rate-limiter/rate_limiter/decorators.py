@@ -41,3 +41,21 @@ class LeakyBucketRateLimiter:
                     return jsonify({"error": "Rate limit exceeded"}), 429 
         return wrapper
 
+class FixedWindowCounterRateLimiter:
+
+    def __init__(self, fwc_factory) -> None:
+        self.fwc_factory = fwc_factory
+        self.fwc_lock = threading.Lock()
+
+    def __call__(self, func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            fwc = self.fwc_factory()
+            with self.fwc_lock:
+                if fwc.allow_request():
+                    self.fwc_factory.save_fixed_window_counter(fwc)
+                    return func(*args, **kwargs)
+                else:
+                    return jsonify({"error": "Rate limit exceeded"}), 429 
+        return wrapper
+

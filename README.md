@@ -21,3 +21,7 @@ Token bucket rate limiting with capacity of 10 tokens with new tokens added at a
 Leaky bucket rate limiting with capacity of 10 tokens with new tokens added at a rate of 1 token per second.
 
 ![leaky_bucket_performance_testing](./screenshots/leaky_bucket.PNG)
+
+Fixed window counter rate limiting with 10 requests allowed per window size of 20 seconds.
+
+![fixed_window_counter_performance_testing](./screenshots/fixed_window_counter.PNG)

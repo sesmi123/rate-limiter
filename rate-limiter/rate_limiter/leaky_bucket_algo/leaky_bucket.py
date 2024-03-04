@@ -10,7 +10,7 @@ class LeakyBucket():
 
     def __init__(self, capacity: int, leak_rate: float) -> None:
         self._my_bucket = Bucket(capacity)
-        self._validate_parameters( leak_rate)
+        self._validate_parameters(leak_rate)
         self.leak_rate = leak_rate
         self.last_leak_time = int(time.time())
 

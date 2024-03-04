@@ -1,8 +1,9 @@
 from flask import Flask
 from redis_connection import RedisConnection
-from decorators import LeakyBucketRateLimiter, TokenBucketRateLimiter
+from decorators import LeakyBucketRateLimiter, TokenBucketRateLimiter, FixedWindowCounterRateLimiter
 from token_bucket_algo.token_bucket_factory import TokenBucketFactory
 from leaky_bucket_algo.leaky_bucket_factory import LeakyBucketFactory
+from fixed_window_counter_algo.fixed_window_counter_factory import FixedWindowCounterFactory
 import settings
 
 app = Flask(__name__)
@@ -15,6 +16,11 @@ leaky_bucket_db = RedisConnection(settings.redis["host"],settings.redis["port"],
 leaky_bucket_db.connect()
 leaky_bucket_factory = LeakyBucketFactory(leaky_bucket_db, settings.leaky_bucket)
 leaky_bucket_rate_limiter = LeakyBucketRateLimiter(leaky_bucket_factory)
+
+fwc_db = RedisConnection(settings.redis["host"],settings.redis["port"],settings.redis["fwc_db"])
+fwc_db.connect()
+fwc_factory = FixedWindowCounterFactory(fwc_db, settings.fixed_window_counter)
+fwc_rate_limiter = FixedWindowCounterRateLimiter(fwc_factory)
 
 @app.route('/hello')
 def hello():
@@ -29,6 +35,11 @@ def token_bucket_rate_limited():
 @leaky_bucket_rate_limiter
 def leaky_bucket_rate_limited():
     return "Limited by leaky bucket, don't over use me!"
+
+@app.route('/fixed-window-counter-rate-limited', methods=['GET'])
+@fwc_rate_limiter
+def fwc_rate_limited():
+    return "Limited by fixed window counter, don't over use me!"
 
 @app.route('/unlimited', methods=['GET'])
 def unlimited():
