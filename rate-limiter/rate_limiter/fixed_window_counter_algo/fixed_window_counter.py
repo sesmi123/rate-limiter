@@ -5,7 +5,8 @@ class FixedWindowCounter:
         self._validate_parameters(request_limit, window_size_in_seconds)
         self.request_limit = request_limit
         self.window_size_in_seconds = window_size_in_seconds
-        self.requests_in_window = []
+        self.window_start_time = int(time.time())
+        self.request_count = 0
         
     def _validate_parameters(self, request_limit: int, window_size_in_seconds: int) -> None:
         if request_limit <= 0 or \
@@ -16,14 +17,13 @@ class FixedWindowCounter:
 
     def allow_request(self):
         current_time = int(time.time())
+        if current_time >= self.window_start_time + self.window_size_in_seconds:
+            # If current time is beyond the current window, reset the counter and start a new window
+            self.window_start_time = current_time
+            self.request_count = 0
         
-        # Remove requests from the window that are older than the window_size
-        self.requests_in_window = [req_time for req_time in self.requests_in_window \
-                                   if req_time > current_time - self.window_size_in_seconds]
-        
-        # Check if the number of requests in the window exceeds the limit
-        if len(self.requests_in_window) < self.request_limit:
-            self.requests_in_window.append(current_time)
+        if self.request_count < self.request_limit:
+            self.request_count += 1
             return True
         else:
             return False
