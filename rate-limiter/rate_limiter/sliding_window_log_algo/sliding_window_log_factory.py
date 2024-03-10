@@ -21,6 +21,6 @@ class SlidingWindowLogFactory(Singleton):
         return swl
     
     def save_sliding_window_log(self, sliding_window_log):
-        serialized_fwc = pickle.dumps(sliding_window_log)
-        self.database_client.set(self._db_key, serialized_fwc)
+        serialized_swl = pickle.dumps(sliding_window_log)
+        self.database_client.set(self._db_key, serialized_swl)
     
