@@ -1,10 +1,13 @@
 from flask import Flask
 from redis_connection import RedisConnection
-from decorators import LeakyBucketRateLimiter, TokenBucketRateLimiter, FixedWindowCounterRateLimiter, SlidingWindowLogRateLimiter
-from token_bucket_algo.token_bucket_factory import TokenBucketFactory
-from leaky_bucket_algo.leaky_bucket_factory import LeakyBucketFactory
-from fixed_window_counter_algo.fixed_window_counter_factory import FixedWindowCounterFactory
-from sliding_window_log_algo.sliding_window_log_factory import SlidingWindowLogFactory
+from decorators import LeakyBucketRateLimiter, TokenBucketRateLimiter, \
+                        FixedWindowCounterRateLimiter, SlidingWindowLogRateLimiter, \
+                        SlidingWindowCounterRateLimiter
+from token_bucket.token_bucket_factory import TokenBucketFactory
+from leaky_bucket.leaky_bucket_factory import LeakyBucketFactory
+from fixed_window_counter.fixed_window_counter_factory import FixedWindowCounterFactory
+from sliding_window_log.sliding_window_log_factory import SlidingWindowLogFactory
+from sliding_window_counter.sliding_window_counter_factory import SlidingWindowCounterFactory
 import settings
 
 app = Flask(__name__)
@@ -27,6 +30,11 @@ swl_db = RedisConnection(settings.redis["host"],settings.redis["port"],settings.
 swl_db.connect()
 swl_factory = SlidingWindowLogFactory(swl_db, settings.sliding_window_log)
 swl_rate_limiter = SlidingWindowLogRateLimiter(swl_factory)
+
+swc_db = RedisConnection(settings.redis["host"],settings.redis["port"],settings.redis["swc_db"])
+swc_db.connect()
+swc_factory = SlidingWindowCounterFactory(swc_db, settings.sliding_window_counter)
+swc_rate_limiter = SlidingWindowCounterRateLimiter(swc_factory)
 
 @app.route('/hello')
 def hello():
@@ -51,6 +59,11 @@ def fwc_rate_limited():
 @swl_rate_limiter
 def swl_rate_limited():
     return "Limited by sliding window log, don't over use me!"
+
+@app.route('/sliding-window-counter-rate-limited', methods=['GET'])
+@swc_rate_limiter
+def swc_rate_limited():
+    return "Limited by sliding window counter, don't over use me!"
 
 @app.route('/unlimited', methods=['GET'])
 def unlimited():

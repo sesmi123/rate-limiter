@@ -1,8 +1,8 @@
 
 import time
 from unittest.mock import MagicMock
-from rate_limiter.token_bucket_algo.token_bucket import TokenBucket
-from rate_limiter.token_bucket_algo.bucket import Bucket
+from rate_limiter.token_bucket.token_bucket import TokenBucket
+from rate_limiter.token_bucket.bucket import Bucket
 import unittest
 
 

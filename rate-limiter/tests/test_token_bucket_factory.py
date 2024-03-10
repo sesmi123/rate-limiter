@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
-from rate_limiter.token_bucket_algo.token_bucket import TokenBucket
-from rate_limiter.token_bucket_algo.token_bucket_factory import TokenBucketFactory
+from rate_limiter.token_bucket.token_bucket import TokenBucket
+from rate_limiter.token_bucket.token_bucket_factory import TokenBucketFactory
 
 class TestTokenBucketFactory(unittest.TestCase):
 

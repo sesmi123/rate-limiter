@@ -77,3 +77,21 @@ class SlidingWindowLogRateLimiter:
                     return jsonify({"error": "Rate limit exceeded"}), 429 
         return wrapper
 
+class SlidingWindowCounterRateLimiter:
+
+    def __init__(self, swc_factory) -> None:
+        self.swc_factory = swc_factory
+        self.swc_lock = threading.Lock()
+
+    def __call__(self, func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            swc = self.swc_factory()
+            with self.swc_lock:
+                if swc.allow_request():
+                    self.swc_factory.save_sliding_window_counter(swc)
+                    return func(*args, **kwargs)
+                else:
+                    return jsonify({"error": "Rate limit exceeded"}), 429 
+        return wrapper
+

@@ -1,5 +1,5 @@
 
-from rate_limiter.token_bucket_algo.bucket import Bucket
+from rate_limiter.token_bucket.bucket import Bucket
 import unittest
 
 
