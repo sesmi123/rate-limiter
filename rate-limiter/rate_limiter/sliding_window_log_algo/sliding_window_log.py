@@ -18,9 +18,8 @@ class SlidingWindowLog:
         current_time = int(time.time())
         self.timestamp_log = [timestamp for timestamp in self.timestamp_log \
                               if timestamp >= current_time - self.window_size_in_seconds]
-        
-        if len(self.timestamp_log) < self.request_limit:
-            self.timestamp_log.append(current_time)
+        self.timestamp_log.append(current_time)
+        if len(self.timestamp_log) <= self.request_limit:
             return True
         else:
             return False
