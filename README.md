@@ -29,3 +29,7 @@ Fixed window counter rate limiting with 10 requests allowed per window size of 2
 Sliding window log rate limiting with 10 requests allowed per window size of 20 seconds.
 
 ![sliding_window_log_performance_testing](./screenshots/sliding_window_log.PNG)
+
+Sliding window counter rate limiting with 10 requests allowed per window size of 20 seconds.
+
+![sliding_window_counter_performance_testing](./screenshots/sliding_window_counter.PNG)
