@@ -1,9 +1,10 @@
 from flask import Flask
 from redis_connection import RedisConnection
-from decorators import LeakyBucketRateLimiter, TokenBucketRateLimiter, FixedWindowCounterRateLimiter
+from decorators import LeakyBucketRateLimiter, TokenBucketRateLimiter, FixedWindowCounterRateLimiter, SlidingWindowLogRateLimiter
 from token_bucket_algo.token_bucket_factory import TokenBucketFactory
 from leaky_bucket_algo.leaky_bucket_factory import LeakyBucketFactory
 from fixed_window_counter_algo.fixed_window_counter_factory import FixedWindowCounterFactory
+from sliding_window_log_algo.sliding_window_log_factory import SlidingWindowLogFactory
 import settings
 
 app = Flask(__name__)
@@ -21,6 +22,11 @@ fwc_db = RedisConnection(settings.redis["host"],settings.redis["port"],settings.
 fwc_db.connect()
 fwc_factory = FixedWindowCounterFactory(fwc_db, settings.fixed_window_counter)
 fwc_rate_limiter = FixedWindowCounterRateLimiter(fwc_factory)
+
+swl_db = RedisConnection(settings.redis["host"],settings.redis["port"],settings.redis["swl_db"])
+swl_db.connect()
+swl_factory = SlidingWindowLogFactory(swl_db, settings.sliding_window_log)
+swl_rate_limiter = SlidingWindowLogRateLimiter(swl_factory)
 
 @app.route('/hello')
 def hello():
@@ -40,6 +46,11 @@ def leaky_bucket_rate_limited():
 @fwc_rate_limiter
 def fwc_rate_limited():
     return "Limited by fixed window counter, don't over use me!"
+
+@app.route('/sliding-window-log-rate-limited', methods=['GET'])
+@swl_rate_limiter
+def swl_rate_limited():
+    return "Limited by sliding window log, don't over use me!"
 
 @app.route('/unlimited', methods=['GET'])
 def unlimited():

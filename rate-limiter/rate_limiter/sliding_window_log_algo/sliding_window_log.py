@@ -1,12 +1,11 @@
 import time
 
-class FixedWindowCounter:
+class SlidingWindowLog:
     def __init__(self, request_limit: int, window_size_in_seconds: int):
         self._validate_parameters(request_limit, window_size_in_seconds)
         self.request_limit = request_limit
         self.window_size_in_seconds = window_size_in_seconds
-        self.window_start_time = int(time.time())
-        self.request_count = 0
+        self.timestamp_log = []
         
     def _validate_parameters(self, request_limit: int, window_size_in_seconds: int) -> None:
         if request_limit <= 0 or \
@@ -15,17 +14,13 @@ class FixedWindowCounter:
             not isinstance(window_size_in_seconds, int):
                 raise ValueError("request_limit and window_size_in_seconds should be natural numbers")
 
-    def _update_window(self):
-        current_time = int(time.time())
-        if current_time >= self.window_start_time + self.window_size_in_seconds:
-            # If current time is beyond the current window, reset the counter and start a new window
-            self.window_start_time = current_time
-            self.request_count = 0
-
     def allow_request(self):
-        self._update_window()
-        if self.request_count < self.request_limit:
-            self.request_count += 1
+        current_time = int(time.time())
+        self.timestamp_log = [timestamp for timestamp in self.timestamp_log \
+                              if timestamp >= current_time - self.window_size_in_seconds]
+        
+        if len(self.timestamp_log) < self.request_limit:
+            self.timestamp_log.append(current_time)
             return True
         else:
             return False

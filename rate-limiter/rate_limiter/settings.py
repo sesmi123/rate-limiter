@@ -6,6 +6,7 @@ redis = {
     "token_bucket_db": os.environ.get("TOKEN_BUCKET_DB", 0),
     "leaky_bucket_db": os.environ.get("LEAKY_BUCKET_DB", 1),
     "fwc_db": os.environ.get("FIXED_WINDOW_COUNTER_DB", 2),
+    "swl_db": os.environ.get("SLIDING_WINDOW_LOG_DB", 3),
 }
 
 token_bucket = {
@@ -22,4 +23,9 @@ leaky_bucket = {
 fixed_window_counter = {
     "request_limit": int(os.environ.get("FWC_REQUEST_LIMIT", 10)),
     "window_size": int(os.environ.get("FWC_WINDOW_SIZE", 20))
+}
+
+sliding_window_log = {
+    "request_limit": int(os.environ.get("SWL_REQUEST_LIMIT", 10)),
+    "window_size": int(os.environ.get("SWL_WINDOW_SIZE", 20))
 }

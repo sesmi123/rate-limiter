@@ -25,3 +25,7 @@ Leaky bucket rate limiting with capacity of 10 tokens with new tokens added at a
 Fixed window counter rate limiting with 10 requests allowed per window size of 20 seconds.
 
 ![fixed_window_counter_performance_testing](./screenshots/fixed_window_counter.PNG)
+
+Sliding window log rate limiting with 10 requests allowed per window size of 20 seconds.
+
+![sliding_window_log_performance_testing](./screenshots/sliding_window_log.PNG)
