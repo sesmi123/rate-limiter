@@ -41,6 +41,7 @@ class SlidingWindowCounter:
                 return True
             else:
                 # New window is not adjacent to the current window
+                # self.current_window_start = current_time
                 n = int((current_time - self.current_window_start)/self.window_size_in_seconds)
                 self.current_window_start = self.current_window_start + self.window_size_in_seconds * n
                 self.current_window_request_count = 1
